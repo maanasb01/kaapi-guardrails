@@ -1,7 +1,4 @@
 import logging
-from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
-from pathlib import Path
 from pydantic import BaseModel
 from typing import Any, Dict, Generic, Optional, TypeVar
 
@@ -30,7 +27,9 @@ class APIResponse(BaseModel, Generic[T]):
         metadata: Optional[Dict[str, Any]] = None,
     ) -> "APIResponse[None]":
         if isinstance(error, list):  # to handle cases when error is a list of errors
-            error_message = "\n".join([f"{err['loc']}: {err['msg']}" for err in error])
+            error_message = "\n".join(
+                [f"{err.get('loc', 'unknown')}: {err.get('msg', str(err))}" for err in error]
+            )
         else:
             error_message = error
 
