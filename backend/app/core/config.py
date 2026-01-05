@@ -33,7 +33,7 @@ class Settings(BaseSettings):
     SECRET_KEY: str = secrets.token_urlsafe(32)
     # 60 minutes * 24 hours * 8 days = 8 days
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8
-    ENVIRONMENT: Literal["development", "local", "staging", "production"] = "local"
+    ENVIRONMENT: Literal["development", "testing", "staging", "production"] = "testing"
     AUTH_TOKEN: str
     PROJECT_NAME: str
     SENTRY_DSN: HttpUrl | None = None
@@ -45,12 +45,14 @@ class Settings(BaseSettings):
 
     CORE_DIR: ClassVar[Path] = Path(__file__).resolve().parent
 
+    SLUR_LIST_FILENAME: ClassVar[str] = "curated_slurlist_hi_en.csv"
+
     SLUR_LIST_FILEPATH: ClassVar[Path] = (
         CORE_DIR
         / "validators"
         / "utils"
         / "files"
-        / "curated_slurlist_hi_en.csv"
+        / SLUR_LIST_FILENAME
     )
 
     GENDER_BIAS_LIST_FILEPATH: ClassVar[Path] = (
