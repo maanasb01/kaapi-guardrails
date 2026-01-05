@@ -5,6 +5,7 @@ from typing import List, Union, Annotated
 # validators. We'll not have to list every new validator like this.
 from app.models.ban_list_safety_validator_config import BanListSafetyValidatorConfig
 from app.models.gender_assumption_bias_safety_validator_config import GenderAssumptionBiasSafetyValidatorConfig
+from app.models.guardrails_pii_safety_validator_config import GuardrailsPIISafetyValidatorConfig
 from app.models.lexical_slur_safety_validator_config import LexicalSlurSafetyValidatorConfig 
 from app.models.pii_remover_safety_validator_config import PIIRemoverSafetyValidatorConfig
 
@@ -13,6 +14,7 @@ ValidatorConfigItem = Annotated[
     Union[
         BanListSafetyValidatorConfig,
         GenderAssumptionBiasSafetyValidatorConfig,
+        GuardrailsPIISafetyValidatorConfig,
         LexicalSlurSafetyValidatorConfig, 
         PIIRemoverSafetyValidatorConfig
     ],

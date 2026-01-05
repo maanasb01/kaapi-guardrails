@@ -70,4 +70,7 @@ class PIIRemover(Validator):
         return anonymized.text
 
     def run_hinglish_presidio(self, text: str):
-        return text
+        results = self.analyzer.analyze(text=text,
+                                language="en")
+        anonymized = self.anonymizer.anonymize(text=text, analyzer_results=results)
+        return anonymized.text
