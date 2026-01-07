@@ -154,3 +154,153 @@ $ alembic upgrade head
 ```
 
 If you don't want to start with the default models and want to remove them / modify them, from the beginning, without having any previous revision, you can remove the revision files (`.py` Python files) under `./backend/app/alembic/versions/`. And then create a first migration as described above.
+
+# Guardrails AI
+
+## Python Version Compatibility
+
+We intentionally **do not use Python 3.12 or newer**.  
+This project uses **Python 3.11.14**, which is the latest stable version fully compatible with Guardrails AI.
+
+Guardrails AI **partially supports Python 3.12**, and operations like configuration give errors. **Validators from the [Guardrails Hub](https://guardrailsai.com/hub) cannot be installed on Python 3.12**.
+
+### Example error observed on Python 3.12
+
+```bash
+guardrails configure
+
+Traceback (most recent call last):
+  from guardrails_grhub_ban_list import BanList
+ModuleNotFoundError: No module named 'guardrails_grhub_ban_list'
+```
+
+## Guardrails AI Setup
+
+Run the following commands inside your virtual environment:
+
+```bash
+uv sync
+guardrails configure
+
+Enable anonymous metrics reporting? [Y/n]: Y
+Do you wish to use remote inferencing? [Y/n]: Y
+Enter API Key below leave empty if you want to keep existing token [HBPo]
+👉 You can find your API Key at https://hub.guardrailsai.com/keys
+```
+
+To install any validator from Guardrails Hub:
+```
+guardrails hub install hub://guardrails/<validator-name>
+
+Example -
+guardrails hub install hub://guardrails/ban_list
+```
+
+## Adding a new validator from Guardrails Hub
+To add a new validator from the Guardrails Hub to this project, follow the steps below.
+
+1. In the `backend/app/models` folder, create a new Python file called `<validator_name>_safety_validator_config.py`. Add the following code there:
+
+```
+from guardrails.hub import # validator name from Guardrails Hub
+from typing import List, Literal
+
+from app.models.base_validator_config import BaseValidatorConfig
+
+class <Validator-name>SafetyValidatorConfig(BaseValidatorConfig):
+    type: Literal["<validator-name>"]
+    banned_words: List[str]
+
+    # This method returns the validator constructor.
+    def build(self):
+```
+
+For example, this is the code for [BanList validator](https://guardrailsai.com/hub/validator/guardrails/ban_list).
+
+```
+from guardrails.hub import BanList
+from typing import List, Literal
+
+from app.models.base_validator_config import BaseValidatorConfig
+
+
+class BanListSafetyValidatorConfig(BaseValidatorConfig):
+    type: Literal["ban_list"]
+    banned_words: List[str]
+
+    def build(self):
+        return BanList(
+            banned_words=self.banned_words,
+            on_fail=self.resolve_on_fail(),
+        )
+
+```
+
+2. In `backend/app/guardrail_config.py`, add the newly created config class to `ValidatorConfigItem`.
+
+## How to add custom validators?
+To add a custom validator to this project, follow the steps below.
+
+1. Create the custom validator class. Take a look at the `backend/app/core/validators/gender_assumption_bias.py` as an example. Each custom validator should contain an `__init__` and `_validator` method. For example,
+
+```
+from guardrails import OnFailAction
+from guardrails.validators import (
+    FailResult,
+    PassResult,
+    register_validator,
+    ValidationResult,
+    Validator
+)
+from typing import Callable, List, Optional
+
+@register_validator(name="<validator-name>", data_type="string")
+class <Validator-Name>(Validator):
+
+    def __init__(
+        self,
+        # any parameters required while initializing the validator 
+        on_fail: Optional[Callable] = OnFailAction.FIX #can be changed
+    ):
+        # Initialize the required variables
+        super().__init__(on_fail=on_fail)
+
+    def _validate(self, value: str, metadata: dict = None) -> ValidationResult:
+        # add logic for validation
+```
+
+2. In the `backend/app/models` folder, create a new Python file called `<validator_name>_safety_validator_config.py`. Add the following code there:
+
+```
+from typing import List, Literal
+
+from app.models.base_validator_config import BaseValidatorConfig
+
+class <Validator-name>SafetyValidatorConfig(BaseValidatorConfig):
+    type: Literal["<validator-name>"]
+    banned_words: List[str]
+
+    # This method returns the validator constructor.
+    def build(self):
+```
+
+For example, this is the code for GenderAssumptionBias validator.
+
+```
+from typing import ClassVar, List, Literal, Optional
+from app.models.base_validator_config import BaseValidatorConfig
+from app.core.enum import BiasCategories
+from app.core.validators.gender_assumption_bias import GenderAssumptionBias
+
+class GenderAssumptionBiasSafetyValidatorConfig(BaseValidatorConfig):
+    type: Literal["gender_assumption_bias"]
+    categories: Optional[List[BiasCategories]] = [BiasCategories.All]
+
+    def build(self):
+        return GenderAssumptionBias(
+            categories=self.categories,
+            on_fail=self.resolve_on_fail(),
+        )
+```
+
+2. In `backend/app/guardrail_config.py`, add the newly created config class to `ValidatorConfigItem`.
