@@ -1,4 +1,5 @@
 import logging
+import os
 
 from sqlalchemy import Engine
 from sqlmodel import Session, select
@@ -9,6 +10,7 @@ from app.core.db import engine
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
 max_tries = 60 * 5  # 5 minutes
 wait_seconds = 1
 
@@ -30,6 +32,10 @@ def init(db_engine: Engine) -> None:
 
 
 def main() -> None:
+    if ENVIRONMENT == "testing":
+        logger.info("Skipping DB pre-start checks in testing environment")
+        return
+
     logger.info("Initializing service")
     init(engine)
     logger.info("Service finished initializing")
