@@ -42,7 +42,7 @@ class Settings(BaseSettings):
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str = ""
     POSTGRES_DB: str = ""
-
+    GUARDRAILS_HUB_API_KEY: str | None = None
     CORE_DIR: ClassVar[Path] = Path(__file__).resolve().parent
 
     SLUR_LIST_FILENAME: ClassVar[str] = "curated_slurlist_hi_en.csv"
@@ -100,14 +100,18 @@ class Settings(BaseSettings):
         return self
 
 def get_settings() -> Settings:
-    """Get settings with appropriate env file based on ENVIRONMENT."""
     environment = os.getenv("ENVIRONMENT", "development")
 
-    # Determine env file
-    env_files = {"testing": "../.env.test", "development": "../.env"}
-    env_file = env_files.get(environment, "../.env")
+    ROOT_DIR = Path(__file__).resolve().parents[3]
 
-    # Create Settings instance with the appropriate env file
+    env_files = {
+        "testing": ROOT_DIR / ".env.test",
+        "development": ROOT_DIR / ".env",
+        "production": ROOT_DIR / ".env",
+    }
+
+    env_file = env_files.get(environment)
+
     return Settings(_env_file=env_file)
 
 settings = get_settings()
