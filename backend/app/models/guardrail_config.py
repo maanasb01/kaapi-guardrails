@@ -20,6 +20,7 @@ ValidatorConfigItem = Annotated[
 ]
 
 class GuardrailInputRequest(SQLModel):
+    request_id: str
     input: str
     validators: List[ValidatorConfigItem]
 

@@ -1,4 +1,5 @@
 import uuid
+from uuid import UUID
 from fastapi import APIRouter, HTTPException, status
 from fastapi.responses import JSONResponse
 
@@ -8,6 +9,7 @@ from app.core.api_response import APIResponse
 from app.core.guardrail_controller import build_guard, get_validator_config_models
 
 from app.crud.request_log import RequestLogCrud
+from app.models.request import  RequestLogUpdate
 
 router = APIRouter(prefix="/guardrails", tags=["guardrails"])
 
@@ -18,11 +20,13 @@ async def run_input_guardrails(
     _: AuthDep,
 ):
     request_log_crud = RequestLogCrud(session=session)
-    request_log_crud.create(request_id=uuid.uuid4())
+    request_log = request_log_crud.create(request_id=UUID(payload.request_id), input_text=payload.input)
     return await _validate_with_guard(
         payload.input,
         payload.validators,
-        "safe_input"
+        "safe_input",
+        request_log_crud,
+        request_log.id
     )
 
 @router.post("/output")
@@ -68,7 +72,9 @@ async def list_validators(_: AuthDep):
 async def _validate_with_guard(
     data: str,
     validators: list,
-    response_field: str  # "safe_input" or "safe_output"
+    response_field: str,  # "safe_input" or "safe_output"
+    request_log_crud: RequestLogCrud,
+    request_log_id: UUID
 ) -> JSONResponse | APIResponse:
     response_id = str(uuid.uuid4())
     
@@ -77,6 +83,14 @@ async def _validate_with_guard(
         result = guard.validate(data)
         
         if result.validated_output is not None:
+            request_log_crud.update_success(
+                request_log_id=request_log_id, 
+                request_log_update= RequestLogUpdate(
+                    response_text=result.validated_output, 
+                    response_id=response_id
+                    )
+                )
+            
             return APIResponse.success_response(
                 data={
                     "response_id": response_id,

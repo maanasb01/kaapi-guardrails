@@ -24,10 +24,10 @@ def upgrade() -> None:
     op.create_table('request_log',
     sa.Column('id', sa.Uuid(), nullable=False),
     sa.Column('request_id', sa.Uuid(), nullable=False),
-    sa.Column('response_id', sa.Uuid(), nullable=False),
-    sa.Column('status', sa.Enum('SUCCESS', 'ERROR', 'WARNING', name='requeststatus'), nullable=False),
+    sa.Column('response_id', sa.Uuid(), nullable=True),
+    sa.Column('status', sa.Enum('PROCESSING','SUCCESS', 'ERROR', 'WARNING', name='requeststatus'), nullable=False, default='PROCESSING'),
     sa.Column('request_text', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
-    sa.Column('response_text', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
+    sa.Column('response_text', sqlmodel.sql.sqltypes.AutoString(), nullable=True),
     sa.Column('inserted_at', sa.DateTime(), nullable=False),
     sa.Column('updated_at', sa.DateTime(), nullable=False),
     sa.PrimaryKeyConstraint('id')
