@@ -10,11 +10,31 @@ from guardrails.validators import (
 )
 from presidio_analyzer import AnalyzerEngine
 from presidio_anonymizer import AnonymizerEngine
+from presidio_analyzer.predefined_recognizers.country_specific.india.in_aadhaar_recognizer import InAadhaarRecognizer
+from presidio_analyzer.predefined_recognizers.country_specific.india.in_pan_recognizer import InPanRecognizer
+from presidio_analyzer.predefined_recognizers.country_specific.india.in_passport_recognizer import InPassportRecognizer
+from presidio_analyzer.predefined_recognizers.country_specific.india.in_vehicle_registration_recognizer import InVehicleRegistrationRecognizer
+from presidio_analyzer.predefined_recognizers.country_specific.india.in_voter_recognizer import InVoterRecognizer
+
 from typing import Callable, Optional
 
-from app.core.validators.utils.language_detector import LanguageDetector
-
-ALL_SUPPORTED_LANGUAGES = ["en", "hi"]
+ALL_ENTITY_TYPES = [
+    "CREDIT_CARD",
+    "EMAIL_ADDRESS",
+    "IBAN_CODE",
+    "IP_ADDRESS",
+    "LOCATION",
+    "MEDICAL_LICENSE",
+    "NRP",
+    "PERSON",
+    "PHONE_NUMBER",
+    "URL",
+    "IN_AADHAAR", 
+    "IN_PAN", 
+    "IN_PASSPORT",
+    "IN_VEHICLE_REGISTRATION",
+    "IN_VOTER"
+]
 
 @register_validator(name="pii-remover", data_type="string")
 class PIIRemover(Validator):
@@ -28,46 +48,48 @@ class PIIRemover(Validator):
         self,
         entity_types=None,
         threshold=0.5,
-        language="en",
         on_fail: Optional[Callable] = OnFailAction.FIX
     ):
         super().__init__(on_fail=on_fail)
 
-        self.entity_types = entity_types or ["ALL"]
+        self.entity_types = entity_types or ALL_ENTITY_TYPES
         self.threshold = threshold
-        self.language = language
-        self.language_detector = LanguageDetector()
-
-        if self.language not in ALL_SUPPORTED_LANGUAGES:
-            raise Exception(
-                f"Language must be in {ALL_SUPPORTED_LANGUAGES}"
-            )
-
+        self.on_fail = on_fail
         os.environ["TOKENIZERS_PARALLELISM"] = "false" # Disables huggingface/tokenizers warning
 
         self.analyzer = AnalyzerEngine()
+
+        if "IN_AADHAAR" in self.entity_types:
+            self.analyzer.registry.add_recognizer(
+                InAadhaarRecognizer()
+            )
+        if "IN_PAN" in self.entity_types:
+            self.analyzer.registry.add_recognizer(
+                InPanRecognizer()
+            )
+        if "IN_PASSPORT" in self.entity_types:
+            self.analyzer.registry.add_recognizer(
+                InPassportRecognizer()
+            )
+        if "IN_VEHICLE_REGISTRATION" in self.entity_types:
+            self.analyzer.registry.add_recognizer(
+                InVehicleRegistrationRecognizer()
+            )
+        if "IN_VOTER" in self.entity_types:
+            self.analyzer.registry.add_recognizer(
+                InVoterRecognizer()
+            )
         self.anonymizer = AnonymizerEngine()
 
     def _validate(self, value: str, metadata: dict = None) -> ValidationResult:
         text = value
-
-        if self.language_detector.is_hindi(text):
-            anonymized_text = self.run_hinglish_presidio(text)
-        else:
-            anonymized_text = self.run_english_presidio(text)
+        results = self.analyzer.analyze(text=text, entities=self.entity_types, language="en")
+        anonymized = self.anonymizer.anonymize(text=text, analyzer_results=results)
+        anonymized_text = anonymized.text
 
         if anonymized_text != text:
             return FailResult(
-                error_message="PII detected and removed from the text.",
+                error_message="PII detected in the text.",
                 fix_value=anonymized_text
             )
-        return PassResult(value=text)        
-
-    def run_english_presidio(self, text: str):
-        results = self.analyzer.analyze(text=text,
-                                language="en")
-        anonymized = self.anonymizer.anonymize(text=text, analyzer_results=results)
-        return anonymized.text
-
-    def run_hinglish_presidio(self, text: str):
-        return text
+        return PassResult(value=text)

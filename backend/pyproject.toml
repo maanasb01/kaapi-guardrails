@@ -2,7 +2,7 @@
 name = "app"
 version = "0.1.0"
 description = ""
-requires-python = ">=3.12,<4.0"
+requires-python = ">=3.10,<4.0"
 dependencies = [
     "fastapi[standard]<1.0.0,>=0.114.2",
     "python-multipart<1.0.0,>=0.0.7",
@@ -25,8 +25,8 @@ dependencies = [
     "guardrails-ai>=0.7.2",
     "emoji",
     "ftfy",
-    "presidio_analyzer",
-    "presidio_anonymizer",
+    "presidio_analyzer>=2.2.360",
+    "presidio_anonymizer>=2.2.360",
     "transformers",
     "torch",
     "pandas>=2.3.2",
