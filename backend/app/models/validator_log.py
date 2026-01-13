@@ -6,7 +6,7 @@ from sqlmodel import SQLModel, Field
 from app.utils import now
 
 class ValidatorLog(SQLModel, table=True):
-    __table__name = "validator_log"
+    __tablename__ = "validator_log"
     id: UUID = Field(default_factory=uuid4, primary_key=True)
     request_id: UUID = Field(foreign_key="request_log.id", nullable=False)
     input: str

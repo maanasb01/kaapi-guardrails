@@ -61,15 +61,10 @@ async def list_validators(_: AuthDep):
                 "type": validator_type,
                 "config": schema,
             })
+
         except (KeyError, TypeError) as e:
-            return JSONResponse(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                content=APIResponse.failure_response(
-                    error={
-                        "type": "internal_error",
-                        "reason": f"Failed to retrieve schema for validator {model.__name__}: {str(e)}",
-                    }
-                ).model_dump(),
+            return APIResponse.failure_response(
+                error=f"Failed to retrieve schema for validator {model.__name__}: {str(e)}",
             )
 
     return {"validators": validators}

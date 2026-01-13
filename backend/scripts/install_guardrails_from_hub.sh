@@ -20,7 +20,6 @@ fi
 ENABLE_METRICS="${ENABLE_METRICS:-false}"
 ENABLE_REMOTE_INFERENCING="${ENABLE_REMOTE_INFERENCING:-false}"
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BACKEND_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 MANIFEST_FILE="${1:-$BACKEND_DIR/app/core/validators/validators.json}"
 

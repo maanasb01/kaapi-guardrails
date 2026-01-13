@@ -78,7 +78,7 @@ class Settings(BaseSettings):
                 f'The value of {var_name} is "changethis", '
                 "for security, please change it, at least for deployments."
             )
-            if self.ENVIRONMENT == "local":
+            if self.ENVIRONMENT == "testing":
                 warnings.warn(message, stacklevel=1)
             else:
                 raise ValueError(message)
@@ -95,6 +95,7 @@ def get_settings() -> Settings:
 
     env_files = {
         "testing": ROOT_DIR / ".env.test",
+        "staging": ROOT_DIR / ".env.test",
         "development": ROOT_DIR / ".env",
         "production": ROOT_DIR / ".env",
     }

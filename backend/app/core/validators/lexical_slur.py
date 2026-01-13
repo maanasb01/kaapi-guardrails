@@ -23,14 +23,15 @@ class LexicalSlur(Validator):
     """
     Validate text for the presence of lexical slurs using a predefined list.
     """
+    
+    _SLUR_CACHE: dict = {}
 
     def __init__(
         self, 
         severity: SlurSeverity = SlurSeverity.All,
         languages: Optional[list] = None,
         on_fail: Optional[Callable] = OnFailAction.FIX
-    ):    
-        self._SLUR_CACHE = {}
+    ):
         self.severity = severity
         self.languages = languages or ["en", "hi"]
         self.slur_list = self.load_slur_list()
