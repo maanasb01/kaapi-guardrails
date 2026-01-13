@@ -1,13 +1,12 @@
+from asgi_correlation_id.middleware import CorrelationIdMiddleware
 import sentry_sdk
 from fastapi import FastAPI
 from fastapi.routing import APIRoute
-from asgi_correlation_id.middleware import CorrelationIdMiddleware
 
 from app.api.main import api_router
 from app.core.config import settings
 from app.core.exception_handlers import register_exception_handlers
 from app.core.middleware import http_request_logger
-
 from app.load_env import load_environment
 
 # Load environment variables

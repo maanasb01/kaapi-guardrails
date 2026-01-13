@@ -1,6 +1,7 @@
+from typing import Any, Literal, Optional
+
 from guardrails import OnFailAction
 from sqlmodel import SQLModel
-from typing import Any, Literal, Optional
 
 ON_FAIL_STR = Literal["exception", "fix", "noop", "reask"]
 

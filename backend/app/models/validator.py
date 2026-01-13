@@ -1,10 +1,9 @@
-from sqlmodel import SQLModel, Field
-from uuid import UUID, uuid4
-from enum import Enum
-
-from app.core.util import now
 from datetime import datetime
+from uuid import UUID, uuid4
 
+from sqlmodel import SQLModel, Field
+
+from app.utils import now
 
 class ValidatorLog(SQLModel, table=True):
     __table__name = "validator_log"

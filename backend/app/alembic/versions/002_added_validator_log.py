@@ -1,6 +1,6 @@
 """Added validator log
 
-Revision ID: 6edf37b70db4
+Revision ID: 002
 Revises: 001
 Create Date: 2026-01-07 09:43:48.002351
 
@@ -8,8 +8,8 @@ Create Date: 2026-01-07 09:43:48.002351
 from typing import Sequence, Union
 
 from alembic import op
-import sqlmodel
 import sqlalchemy as sa
+import sqlmodel
 
 
 # revision identifiers, used by Alembic.
@@ -20,7 +20,6 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    """Upgrade schema."""
     op.create_table('validator_log',
     sa.Column('id', sa.Uuid(), nullable=False),
     sa.Column('request_id', sa.Uuid(), nullable=False),
@@ -35,5 +34,4 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
-    """Downgrade schema."""
     op.drop_table('validator_log')

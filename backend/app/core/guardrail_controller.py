@@ -1,5 +1,7 @@
-from guardrails import Guard
 from typing import get_args
+
+from guardrails import Guard
+
 from app.models.guardrail_config import ValidatorConfigItem
 
 def build_guard(validator_items):

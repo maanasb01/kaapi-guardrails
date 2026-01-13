@@ -1,3 +1,7 @@
+import re
+from typing import Callable, List, Optional
+
+import pandas
 from guardrails import OnFailAction
 from guardrails.validators import (
     FailResult,
@@ -6,10 +10,7 @@ from guardrails.validators import (
     ValidationResult,
     Validator
 )
-from typing import Callable, List, Optional
 
-import pandas
-import re
 from app.core.config import Settings
 from app.core.enum import BiasCategories
 

@@ -1,8 +1,8 @@
-import pytest
+from unittest.mock import patch, MagicMock
 from uuid import uuid4
 
+import pytest
 from fastapi.responses import JSONResponse
-from unittest.mock import patch, MagicMock
 
 from app.api.routes.guardrails import _validate_with_guard
 from app.tests.guardrails_mocks import MockResult, MockFailure

@@ -1,5 +1,5 @@
-from unittest.mock import Mock, patch
 import pytest
+from unittest.mock import Mock, patch
 
 from app.core.guardrail_controller import build_guard
 

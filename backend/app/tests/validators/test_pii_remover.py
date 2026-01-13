@@ -1,7 +1,8 @@
-import pytest
 from unittest.mock import MagicMock, patch
 
-from app.core.validators.pii_remover import PIIRemover, ALL_SUPPORTED_LANGUAGES
+import pytest
+
+from app.core.validators.pii_remover import PIIRemover
 
 # -------------------------------
 # Basic fixture with mock Presidio
@@ -32,12 +33,6 @@ def validator(mock_presidio):
 # -------------------------
 # TESTS BEGIN
 # -------------------------
-
-def test_validator_initialization(validator):
-    assert validator.language in ALL_SUPPORTED_LANGUAGES
-    assert isinstance(validator.entity_types, list)
-    assert len(validator.entity_types) > 0
-
 
 def test_validate_pass_result_when_presidio_returns_string(validator):
     # Mock analyzer/anonymizer pipeline

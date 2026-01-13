@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime, timezone
 from pydantic import BaseModel
 from typing import Any, Dict, Generic, Optional, TypeVar
 
@@ -6,6 +7,9 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 T = TypeVar("T")
+
+def now():
+    return datetime.now(timezone.utc).replace(tzinfo=None)
 
 class APIResponse(BaseModel, Generic[T]):
     success: bool

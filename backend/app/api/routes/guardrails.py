@@ -1,15 +1,16 @@
+from re import error
 import uuid
 from uuid import UUID
+
 from fastapi import APIRouter, HTTPException, status
 from fastapi.responses import JSONResponse
 
-from app.models.guardrail_config import GuardrailInputRequest, GuardrailOutputRequest
 from app.api.deps import AuthDep, SessionDep
-from app.core.api_response import APIResponse
 from app.core.guardrail_controller import build_guard, get_validator_config_models
-
 from app.crud.request_log import RequestLogCrud
+from app.models.guardrail_config import GuardrailInputRequest, GuardrailOutputRequest
 from app.models.request import  RequestLogUpdate
+from app.utils import APIResponse
 
 router = APIRouter(prefix="/guardrails", tags=["guardrails"])
 
@@ -103,28 +104,35 @@ async def _validate_with_guard(
                 }
             )
         
-        return JSONResponse(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            content=APIResponse.failure_response(
-                error={
-                    "response_id": response_id,
-                    "type": "validation_error",
-                    "action": "reask" if result.failures else "fail",
-                    "failures": [
-                        f.failure_message for f in (result.failures or [])
-                    ],
-                }
-            ).model_dump(),
+        error = ", ".join(f.failure_message for f in (result.failures or []))
+
+        request_log_crud.update_error(
+            request_log_id=request_log_id, 
+            request_log_update= RequestLogUpdate(
+                response_text=error,
+                response_id=response_id
+                )
+            )
+        return APIResponse.failure_response(
+            data={
+                "response_id": response_id,
+                response_field: None,
+                },
+            error=error,
         )
     
     except Exception as e:
-        return JSONResponse(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content=APIResponse.failure_response(
-                error={
-                    "response_id": response_id,
-                    "type": "config_error",
-                    "reason": str(e),
-                }
-            ).model_dump(),
+        request_log_crud.update_error(
+            request_log_id=request_log_id, 
+            request_log_update= RequestLogUpdate(
+                response_text=str(e), 
+                response_id=response_id
+                )
+            )
+        return APIResponse.failure_response(
+            data={
+                "response_id": response_id,
+                response_field: None,
+                },
+            error=str(e),
         )

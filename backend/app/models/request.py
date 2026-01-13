@@ -1,9 +1,10 @@
-from sqlmodel import SQLModel, Field
-from uuid import UUID, uuid4
-from enum import Enum
-
-from app.core.util import now
 from datetime import datetime
+from enum import Enum
+from uuid import UUID, uuid4
+
+from sqlmodel import SQLModel, Field
+
+from app.utils import now
 
 class RequestStatus(str, Enum):
     PROCESSING = "processing"

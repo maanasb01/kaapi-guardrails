@@ -1,6 +1,6 @@
-from collections.abc import Generator
-import pytest
 import os
+import pytest
+
 # Set environment before importing ANYTHING else
 os.environ["ENVIRONMENT"] = "testing"
 

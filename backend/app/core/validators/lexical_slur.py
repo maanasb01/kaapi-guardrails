@@ -1,3 +1,11 @@
+import re
+import string
+import unicodedata
+from typing import Callable, Optional
+
+import emoji
+import ftfy
+import pandas
 from guardrails import OnFailAction
 from guardrails.validators import (
     FailResult,
@@ -6,14 +14,6 @@ from guardrails.validators import (
     ValidationResult,
     Validator
 )
-from typing import Callable, Optional
-
-import emoji
-import ftfy
-import pandas
-import re
-import string
-import unicodedata
 
 from app.core.config import Settings
 from app.core.enum import SlurSeverity

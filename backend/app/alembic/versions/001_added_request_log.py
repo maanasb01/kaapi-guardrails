@@ -1,6 +1,6 @@
 """Added request log
 
-Revision ID: 45c2306d1868
+Revision ID: 001
 Revises: 
 Create Date: 2026-01-07 09:42:54.128852
 
@@ -8,8 +8,8 @@ Create Date: 2026-01-07 09:42:54.128852
 from typing import Sequence, Union
 
 from alembic import op
-import sqlmodel
 import sqlalchemy as sa
+import sqlmodel
 
 
 # revision identifiers, used by Alembic.
@@ -20,7 +20,6 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    """Upgrade schema."""
     op.create_table('request_log',
     sa.Column('id', sa.Uuid(), nullable=False),
     sa.Column('request_id', sa.Uuid(), nullable=False),
@@ -35,7 +34,6 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
-    """Downgrade schema."""
     op.drop_table('request_log')
     # todo : drop requeststatus enum type
 

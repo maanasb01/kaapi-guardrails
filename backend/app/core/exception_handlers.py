@@ -1,12 +1,12 @@
 from fastapi import FastAPI, Request, HTTPException
-from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
-from app.utils import APIResponse
+from fastapi.responses import JSONResponse
 from starlette.status import (
     HTTP_422_UNPROCESSABLE_ENTITY,
     HTTP_500_INTERNAL_SERVER_ERROR,
 )
 
+from app.utils import APIResponse
 
 def register_exception_handlers(app: FastAPI):
     @app.exception_handler(RequestValidationError)

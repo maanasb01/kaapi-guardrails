@@ -1,5 +1,7 @@
 from __future__ import annotations
 import os
+from typing import Callable, Optional
+
 from guardrails import OnFailAction
 from guardrails.validators import (
     FailResult,
@@ -15,8 +17,6 @@ from presidio_analyzer.predefined_recognizers.country_specific.india.in_pan_reco
 from presidio_analyzer.predefined_recognizers.country_specific.india.in_passport_recognizer import InPassportRecognizer
 from presidio_analyzer.predefined_recognizers.country_specific.india.in_vehicle_registration_recognizer import InVehicleRegistrationRecognizer
 from presidio_analyzer.predefined_recognizers.country_specific.india.in_voter_recognizer import InVoterRecognizer
-
-from typing import Callable, Optional
 
 ALL_ENTITY_TYPES = [
     "CREDIT_CARD",
