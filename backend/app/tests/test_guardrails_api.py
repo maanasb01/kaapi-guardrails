@@ -21,7 +21,7 @@ def mock_crud():
 def test_routes_exist(client):
     paths = {route.path for route in client.app.routes}
     assert "/api/v1/guardrails/input/" in paths
-    assert "/api/v1/guardrails/output" in paths
+    assert "/api/v1/guardrails/output/" in paths
 
 
 def test_input_guardrails_success(client, mock_crud):
