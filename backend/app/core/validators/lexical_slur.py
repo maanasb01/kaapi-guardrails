@@ -38,21 +38,25 @@ class LexicalSlur(Validator):
         super().__init__(on_fail=on_fail, search_words=self.slur_list)
 
     def _validate(self, value: str, metadata: dict = None) -> ValidationResult:
+        translator = str.maketrans('', '', string.punctuation)
+
         value = self.remove_emojis(value)
-        value = self.remove_nos(value)
         value = self.clean_text(value)
         words = value.split()
         detected_slurs = []
 
-        for slur in self.slur_list:
-            if slur in words:
-                if slur not in detected_slurs:
-                    detected_slurs.append(slur)
+        clean_words = [
+            w.translate(translator).lower()
+            for w in words
+        ]
 
-        if len(detected_slurs) > 0:
-            for word in words:
-                if word in detected_slurs:
-                    value = re.sub(rf'\b{re.escape(word)}\b', "[REDACTED_SLUR]", value, flags=re.IGNORECASE)
+        detected_slurs = list(
+            set(clean_words) & set(self.slur_list)
+        )
+
+        for slur in detected_slurs:
+            pattern = rf'\b{re.escape(slur)}\b'
+            value = re.sub(pattern, "[REDACTED_SLUR]", value, flags=re.IGNORECASE)
 
         if len(detected_slurs) > 0:
             return FailResult(
@@ -74,14 +78,8 @@ class LexicalSlur(Validator):
 
     def clean_text(self, text):
         text = self.normalize_text(text)
-        translator = str.maketrans('', '', string.punctuation)
-        clean_text = text.translate(translator).lower()
-        clean_text = re.sub(r'\s+', ' ', clean_text).strip()
+        clean_text = re.sub(r'\s+', ' ', text).strip()
         return clean_text
-
-    def remove_nos(self, text):
-        text = re.sub(r'\d+', '', text)
-        return text
 
     def load_slur_list(self):
         cache_key = self.severity.value if hasattr(self.severity, "value") else str(self.severity)
