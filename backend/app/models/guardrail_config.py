@@ -1,4 +1,5 @@
-from typing import List, Union, Annotated
+from typing import Annotated, List, Optional, Union
+from uuid import UUID
 
 from sqlmodel import Field, SQLModel
 
@@ -20,12 +21,12 @@ ValidatorConfigItem = Annotated[
     Field(discriminator="type")
 ]
 
-class GuardrailInputRequest(SQLModel):
+class GuardrailRequest(SQLModel):
     request_id: str
     input: str
     validators: List[ValidatorConfigItem]
 
-class GuardrailOutputRequest(SQLModel):
-    request_id: str
-    output: str
-    validators: List[ValidatorConfigItem]
+class GuardrailResponse(SQLModel):
+    response_id: UUID
+    rephrase_needed: bool = False
+    safe_text: Optional[str] = None
